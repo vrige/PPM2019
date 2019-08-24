@@ -1,0 +1,231 @@
+@import url('https://fonts.googleapis.com/css?family=Lobster&display=swap');
+
+/* Eric Meyer's reset  */
+/* http://meyerweb.com/eric/tools/css/reset/
+   v2.0 | 20110126
+   License: none (public domain)
+*/
+
+html, body, div, span, applet, object, iframe,
+h1, h2, h3, h4, h5, h6, p, blockquote, pre,
+a, abbr, acronym, address, big, cite, code,
+del, dfn, em, img, ins, kbd, q, s, samp,
+small, strike, strong, sub, sup, tt, var,
+b, u, i, center,
+dl, dt, dd, ol, ul, li,
+fieldset, form, label, legend,
+table, caption, tbody, tfoot, thead, tr, th, td,
+article, aside, canvas, details, embed,
+figure, figcaption, footer, header, hgroup,
+menu, nav, output, ruby, section, summary,
+time, mark, audio, video {
+    margin: 0;
+    padding: 0;
+    border: 0;
+    font-size: 100%;
+    font: inherit;
+    vertical-align: baseline;
+}
+/* HTML5 display-role reset for older browsers */
+article, aside, details, figcaption, figure,
+footer, header, hgroup, menu, nav, section {
+    display: block;
+}
+body {
+    line-height: 1;
+}
+ol, ul {
+    list-style: none;
+}
+blockquote, q {
+    quotes: none;
+}
+blockquote:before, blockquote:after,
+q:before, q:after {
+    content: '';
+    content: none;
+}
+table {
+    border-collapse: collapse;
+    border-spacing: 0;
+}
+
+/* BEGIN CSS */
+* {
+    box-sizing: border-box;
+}
+
+html, body {
+    height: 100%;
+    overflow: hidden;
+}
+
+body {
+    display: flex;
+    flex-flow: column nowrap;
+    align-items: center;
+}
+
+#pageTitle {
+    display: flex;
+    flex-flow: row nowrap;
+    align-items: center;
+    flex: 0 0 40px;
+    width: 100%;
+    font-family: 'Lobster', cursive;
+    color: #fff;
+    background: #3f51b5;
+}
+
+#headerWrapper {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    width: 100%;
+    max-width: 1024px;
+    margin: auto;
+}
+
+#headerWrapper h1 {
+    margin-left: 15px;
+}
+
+#wrapper {
+    position: relative;
+    display: flex;
+    flex-flow: column nowrap;
+    flex-grow: 1;
+    width: 100%;
+    max-width: 1024px;
+}
+
+#searchBox {
+    position: absolute;
+    /* needed to center elements with position: absolute on browsers that don't support flexbox well */
+    left: 0;
+    right: 0;
+    margin-left: auto;
+    margin-right: auto;
+    /******************/
+    display: flex;
+    flex-flow: column nowrap;
+    justify-content: center;
+    width: 80%;
+    align-self: center;
+    margin-top: 10px;
+    border: 1px solid #ccc;
+    border-radius: 2em;
+    background: #fff;
+    z-index: 9;
+}
+
+#searchBox:before, #searchBox #speakBtn {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    margin-top: auto;
+    margin-bottom: auto;
+    display: block;
+    width: 20px;
+    height: 20px;
+    content: "";
+    background: #757575;
+}
+
+#searchBox:before {
+    left: 10px;
+    mask: url(../img/icons/magnify.svg);
+    mask-position: center;
+    mask-repeat: no-repeat;
+    mask-size: contain;
+    -webkit-mask: url(../img/icons/magnify.svg) center no-repeat;
+    -webkit-mask-size: contain;
+}
+
+#searchBox #speakBtn {
+    right: 10px;
+    mask: url(../img/icons/microphone.svg);
+    mask-position: center;
+    mask-repeat: no-repeat;
+    mask-size: contain;
+    -webkit-mask: url(../img/icons/microphone.svg) center no-repeat;
+    -webkit-mask-size: contain;
+}
+
+#searchBox input {
+    width: 80%;
+    height: 40px;
+    margin-left: 30px;
+    padding: 4px 4px 4px 1px;
+    border: none;
+    border-radius: 2em;
+}
+
+#searchBox input:focus {
+    outline: none;
+}
+
+#filterBox {
+    position: absolute;
+    left: 0;
+    right: 0;
+    margin: 10px auto;
+    width: 80%;
+    max-height: 80%;
+    align-self: center;
+    overflow-y: auto;
+    border-radius: 16px;
+    font-family: 'Lobster', cursive;
+    font-size: 1.5em;
+    color: #fff;
+    background: rgba(0,0,0,0.8);
+    z-index: 9;
+}
+#filterBox .opera {
+    display: block;
+    margin: 20px;
+    color: #fff;
+    text-decoration: none;
+}
+
+footer {
+    position: absolute;
+    bottom: 20px;
+    left: 20px;
+    width: 100%;
+    font-family: 'Lobster', cursive;
+    color: white;
+    z-index: 8;
+}
+
+#slideshow {
+    position:absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: -1;
+}
+#slideshow li{
+    position:absolute;
+    display: block;
+    width: 100%;
+    height: 100%;
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center;
+    z-index:1
+}
+#slideshow .active{z-index:3}
+
+#slideshow:after {
+    position: absolute;
+    top: 0;
+    left: 0;
+    display: block;
+    content: "";
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.8));;
+    z-index: 4;
+}

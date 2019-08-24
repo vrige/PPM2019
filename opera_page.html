@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+    <title>Opera page</title>
+    <script>
+        // redirect to main page if come to this page without clicking on a link
+        var url = new URL(window.location.href);
+        // extract operaID the hard way since searchParams is not supported on every browser
+        var operaID = url.search.split("=")[1]; // n.b.: this only works with one variable in the url
+        if (operaID === null) {
+            window.location.replace("./");
+        }
+    </script>
+    <link rel="stylesheet" type="text/css" href="styles/style.css">
+    <link rel="stylesheet" type="text/css" href="styles/operaPage.css">
+    <script src="js/jquery-3.4.1.min.js"></script>
+    <script src="js/modernizr-custom.js"></script>
+    <script src="js/listaOpere.js"></script>
+    <script defer src="js/index.js"></script>
+    <script defer src="js/speech_rec.js"></script>
+    <script defer src="js/opera_page.js"></script>
+</head>
+<body>
+<header id="pageTitle">
+    <div id="headerWrapper">
+        <h1>Titolo App</h1>
+    </div>
+</header>
+<main id="wrapper">
+    <div id="searchBox">
+        <input type="text" placeholder="Cerca dettaglio o informazione...">
+        <span id="speakBtn"></span>
+    </div>
+    <div id="filterBox">
+        <div id="operaWrap">
+            <div id="artImage">
+            </div>
+            <section id="info">
+                <header id="title">
+                    <h2><span id="name"></span><span id="artist"></span><span id="year"></span></h2>
+                    <h3><span id="location"></span></h3>
+                </header>
+                <main id="description">
+                </main>
+            </section>
+        </div>
+    </div>
+</main>
+<ul id="slideshow">
+</ul>
+<footer>
+    <div id="operaInfo"></div>
+</footer>
+</body>
+</html>

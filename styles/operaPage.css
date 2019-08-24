@@ -1,0 +1,110 @@
+#backBtn {
+    display: block;
+    width: 30px;
+    height: 30px;
+    margin-left: 10px;
+    content: "";
+    background: #212c65;
+    mask: url(../img/icons/arrow-left.svg);
+    mask-position: center;
+    mask-repeat: no-repeat;
+    mask-size: contain;
+    -webkit-mask: url(../img/icons/arrow-left.svg) center no-repeat;
+    -webkit-mask-size: contain;
+    cursor: pointer;
+}
+
+#filterBox {
+    display: flex;
+    flex-direction: column;
+    width: 95%;
+}
+
+#operaWrap {
+    display: flex;
+    flex-direction: column;
+    flex: 1 0 auto;
+    margin: 20px;
+    font-family: Calibri, sans-serif;
+    font-size: 16px;
+}
+
+#artImage {
+    position: relative;
+    display: flex;
+    flex-flow: column nowrap;
+    flex: 0 0 auto;
+    width: 100%;
+    height: 100%;
+    font-size: 0;
+}
+
+#operaCanvas {
+    align-self: center;
+}
+
+#detailsInfo {
+    display: block;
+    margin-top: 2px;
+    font-size: 12px;
+    color: rgba(255, 255, 255, 0.3);
+}
+
+#detailsInfo:before {
+    display: inline-block;
+    width: 15px;
+    height: 15px;
+    margin-right: 1px;
+    content: "";
+    vertical-align: text-bottom;
+    mask: url(../img/icons/information.svg);
+    mask-position: center;
+    mask-repeat: no-repeat;
+    mask-size: contain;
+    -webkit-mask: url(../img/icons/information.svg) center no-repeat;
+    -webkit-mask-size: contain;
+    background-color: rgba(255, 255, 255, 0.3);
+}
+
+#detailsBtn {
+    position: absolute;
+    left: -9999px;
+}
+
+#info {
+    display: flex;
+    flex-direction: column;
+    flex: 1 0 auto;
+    margin-top: 20px;
+}
+
+#info #title {
+    flex: 0 0 auto;
+}
+
+#info #title h3 {
+    margin-top: 10px;
+}
+
+#description {
+    flex: 1 1 auto;
+    max-height: 80px;
+    margin-top: 20px;
+    overflow: auto;
+    text-align: justify;
+}
+
+.loader {
+    width: 40px;
+    height: 40px;
+    margin: auto;
+    border: 8px solid #f3f3f3;
+    border-top: 8px solid #3498db;
+    border-radius: 50%;
+    animation: spin 2s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
