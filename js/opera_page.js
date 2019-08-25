@@ -116,33 +116,12 @@ $('#filterBox').on('click', '#operaCanvas', function (e) {
             var detH = det.height / 100 * imgH;
             // if clicked in a detail box
             if ((detX <= x && x <= detX + detW) && (detY <= y && y <= detY + detH)) {
-                inDetail = true;
-                var canvas = $('#operaCanvas')[0];
-                var ctx = canvas.getContext("2d");
-                // update dimensions with to match the real image
-                detX = det.x / 100 * $img[0].width;
-                detY = det.y / 100 * $img[0].height;
-                detW = det.width / 100 * $img[0].width;
-                detH = det.height / 100 * $img[0].height;
-
-                ctx.clearRect(0,0, canvas.width, canvas.height);
-                // check if the resized height fits in the canvas, else resize the width
-                if(detH*$(canvas).width()/detW <= $(canvas).height()) {
-                    $(canvas).css('height', detH*$(canvas).width()/detW);
-                    ctx.drawImage($img[0], detX, detY, detW, detH, 0, 0, canvas.width, canvas.height);
-                } else {
-                    $(canvas).css('width', detW*$(canvas).height()/detH);
-                    ctx.drawImage($img[0], detX, detY, detW, detH, 0, 0, canvas.width, canvas.height);
-                }
-                // update info
-                $('#name').text(det.nome);
-                $('#artist').text('');
-                $('#year').text('');
-                $('#location').text('');
-                $('#description').text(det.descrizione);
+                showDetail(det);
                 return;
             }
         }
+    } else if (inDetail) { // if the detail was drawn by searching for it, check the checkbox to act like it was clicked
+        $detailsBtn[0].checked = true;
     }
     inDetail = false;
     $detailsBtn[0].checked = !$detailsBtn[0].checked;
@@ -175,23 +154,41 @@ $('#filterBox').on('click', '#operaCanvas', function (e) {
         }
     });
 
-// highlight searched text or special artwork information
-/* serve la regex per evidenziare solo se la stringa cercata è
-all'inizio di una parola ma indexOf() non accetta regex.
-crea nuova funzione che usa search() (che accetta regex)
-ma si comporta come indexOf() */
-String.prototype.regexIndexOf = function(regex, startpos) {
-    var indexOf = this.substring(startpos || 0).search(regex);
-    return (indexOf >= 0) ? (indexOf + (startpos || 0)) : indexOf;
-};
+function showDetail(detail) {
+    inDetail = true;
+    var canvas = $('#operaCanvas')[0];
+    var ctx = canvas.getContext("2d");
+    // update dimensions to match the real image
+    var detX = detail.x / 100 * $img[0].width;
+    var detY = detail.y / 100 * $img[0].height;
+    var detW = detail.width / 100 * $img[0].width;
+    var detH = detail.height / 100 * $img[0].height;
 
+    ctx.clearRect(0,0, canvas.width, canvas.height);
+    // check if the resized height fits in the canvas, else resize the width
+    if(detH*$(canvas).width()/detW <= $(canvas).height()) {
+        $(canvas).css('height', detH*$(canvas).width()/detW);
+        ctx.drawImage($img[0], detX, detY, detW, detH, 0, 0, canvas.width, canvas.height);
+    } else {
+        $(canvas).css('width', detW*$(canvas).height()/detH);
+        ctx.drawImage($img[0], detX, detY, detW, detH, 0, 0, canvas.width, canvas.height);
+    }
+    // update info
+    $('#name').text(detail.nome);
+    $('#artist').text('');
+    $('#year').text('');
+    $('#location').text('');
+    $('#description').text(detail.descrizione);
+}
+
+// highlight searched text or special artwork information
 var $container = $('#description');
 var original;
 $('#searchBox input')
     .on('keyup', function(){
         $container.html(original);
         var output = $container.html();
-        var word = $('#searchBox input').val().replace(/[^a-zA-Z0-9]/g, "").toLowerCase(); // input string
+        var word = $(this).val().replace(/[^a-zA-Z0-9]/g, "").toLowerCase(); // input string
 
         // cycle through the text until no matches are found
         var i = 0;
@@ -215,5 +212,11 @@ $('#searchBox input')
     // restore the original text
     .on('focusout', function () {
         $container.html(original);
-        $('#searchBox input').val('');
+        $(this).val('');
     });
+
+// new function that acts like indexOf() but accepts regex
+String.prototype.regexIndexOf = function(regex, startpos) {
+    var indexOf = this.substring(startpos || 0).search(regex);
+    return (indexOf >= 0) ? (indexOf + (startpos || 0)) : indexOf;
+};
