@@ -175,11 +175,11 @@ $('#filterBox').on('click', '#operaCanvas', function (e) {
         }
     });
 
+// highlight searched text or special artwork information
 /* serve la regex per evidenziare solo se la stringa cercata è
 all'inizio di una parola ma indexOf() non accetta regex.
 crea nuova funzione che usa search() (che accetta regex)
-ma si comporta come indexOf()
-*/
+ma si comporta come indexOf() */
 String.prototype.regexIndexOf = function(regex, startpos) {
     var indexOf = this.substring(startpos || 0).search(regex);
     return (indexOf >= 0) ? (indexOf + (startpos || 0)) : indexOf;
