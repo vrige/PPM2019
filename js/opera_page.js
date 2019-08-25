@@ -18,11 +18,22 @@ $(window).on('load', function () {
         );
 
     var $image = $('#artImage');
-    $('#name').text(opera.nome+', ');
-    $('#artist').text(opera.artista.nome+', ');
-    $('#year').text(opera.data);
-    $('#location').text(opera.ubicazione.nome);
-    $('#description').text(opera.descrizione);
+    $('#name')
+        .attr('data-info', 'nome opera titolo')
+        .text(opera.nome)
+        .after(', ');
+    $('#artist')
+        .attr('data-info', 'artista pittore autore')
+        .text(opera.artista.nome)
+        .after(', ');
+    $('#year')
+        .attr('data-info', 'anno')
+        .text(opera.data);
+    $('#location')
+        .attr('data-info', 'ubicazione museo')
+        .text(opera.ubicazione.nome);
+    $('#description')
+        .text(opera.descrizione);
     $('#info').data('operaInfo', $('#info').html()); // save the art details to restore
 
     $image.html('<div class="loader"></div>');
@@ -176,18 +187,17 @@ function showDetail(detail) {
     }
     // update info
     $('#canvasInfo').text('Clicca l\'immagine per tornare all\'opera completa');
-    $('#name').text(detail.nome);
-    $('#artist').text('');
-    $('#year').text('');
-    $('#location').text('');
+    $('#title').html($('#title h2').html($('#name').text(detail.nome)));
     $('#description').text(detail.descrizione);
 }
 
 // highlight searched text or special artwork information
-var $container = $('#description');
+var $container = $('#info');
 var original;
 $('#searchBox input')
     .on('keyup', function(){
+        $container.html(original);
+
         var details = Opera[operaID].dettagli;
         var word = $(this).val().replace(/[^a-zA-Z0-9]/g, "").toLowerCase(); // input string
         // if looking for a detail, show it immediately
@@ -199,11 +209,19 @@ $('#searchBox input')
                 return;
             }
         }
+
         // else look for the word or special info and mark it
-        $container.html(original);
-        var output = $container.html();
+        // if the searched word is a special info (museo, autore, ...), highlight it
+        $('[data-info]').each(function () {
+            var queries = $(this).attr('data-info').split(" ");
+            if (queries.includes(word)) {
+                $(this).wrap('<mark></mark>');
+            }
+        });
 
         // cycle through the text until no matches are found
+        var $description = $container.children('#description');
+        var output = $description.html();
         var i = 0;
         while (i+word.length<=output.length) {
             // get the index of a word that matches the input string (regex \b matches only begin of words)
@@ -216,7 +234,7 @@ $('#searchBox input')
             } else break;
             i += start+$wrap[0].outerHTML.length;
         }
-        $container.html(output);
+        $description.html(output);
     })
     // save the original text
     .on('focus', function () {
