@@ -66,7 +66,7 @@ $(window).on('load', function () {
             .text('Il tuo browser è troppo vecchio!');
         var $input = $(document.createElement('input'))
             .attr({
-                'id': 'detailsBtn',
+                'id': 'canvasBtn',
                 'type': 'checkbox'
             });
 
@@ -90,7 +90,7 @@ $(window).on('load', function () {
             .html($canvas)
             .append($input)
             .append($(document.createElement("span"))
-                    .attr('id', 'detailsInfo')
+                    .attr('id', 'canvasInfo')
                     .text('Clicca l\'immagine per mostrare/nascondere i dettagli')
             );
     });
@@ -99,10 +99,10 @@ $(window).on('load', function () {
 var inDetail = false; // prevent from firing detail check when already in a detail
 $('#filterBox').on('click', '#operaCanvas', function (e) {
     e.stopImmediatePropagation();
-    var $detailsBtn = $('#detailsBtn');
+    var $canvasBtn = $('#canvasBtn');
 
     // check if a detail has been clicked and draw it
-    if ($detailsBtn[0].checked && !inDetail) {
+    if ($canvasBtn[0].checked && !inDetail) {
         var imgW = $(this).width();
         var imgH = $(this).height();
         var x = e.offsetX;
@@ -121,13 +121,13 @@ $('#filterBox').on('click', '#operaCanvas', function (e) {
             }
         }
     } else if (inDetail) { // if the detail was drawn by searching for it, check the checkbox to act like it was clicked
-        $detailsBtn[0].checked = true;
+        $canvasBtn[0].checked = true;
     }
     inDetail = false;
-    $detailsBtn[0].checked = !$detailsBtn[0].checked;
-    $detailsBtn.trigger('change');
+    $canvasBtn[0].checked = !$canvasBtn[0].checked;
+    $canvasBtn.trigger('change');
 })
-    .on('change', '#detailsBtn', function () {
+    .on('change', '#canvasBtn', function () {
         var canvas = $('#operaCanvas')[0];
         var ctx = canvas.getContext("2d");
         if (this.checked) {
@@ -150,6 +150,7 @@ $('#filterBox').on('click', '#operaCanvas', function (e) {
                 'height': $(canvas).data('height')
             });
             ctx.drawImage($img[0], 0, 0, canvas.width, canvas.height);
+            $('#canvasInfo').text('Clicca l\'immagine per mostrare/nascondere i dettagli');
             $('#info').html($('#info').data('operaInfo'));
         }
     });
@@ -174,6 +175,7 @@ function showDetail(detail) {
         ctx.drawImage($img[0], detX, detY, detW, detH, 0, 0, canvas.width, canvas.height);
     }
     // update info
+    $('#canvasInfo').text('Clicca l\'immagine per tornare all\'opera completa');
     $('#name').text(detail.nome);
     $('#artist').text('');
     $('#year').text('');
@@ -186,9 +188,20 @@ var $container = $('#description');
 var original;
 $('#searchBox input')
     .on('keyup', function(){
+        var details = Opera[operaID].dettagli;
+        var word = $(this).val().replace(/[^a-zA-Z0-9]/g, "").toLowerCase(); // input string
+        // if looking for a detail, show it immediately
+        for (var det in details) {
+            if (word === details[det].nome.replace(/[^a-zA-Z0-9]/g, "").toLowerCase()) {
+                showDetail(details[det]);
+                original = $container.html();
+                $(this).trigger('focusout');
+                return;
+            }
+        }
+        // else look for the word or special info and mark it
         $container.html(original);
         var output = $container.html();
-        var word = $(this).val().replace(/[^a-zA-Z0-9]/g, "").toLowerCase(); // input string
 
         // cycle through the text until no matches are found
         var i = 0;
