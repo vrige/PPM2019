@@ -43,6 +43,7 @@ $(window).on('load', function () {
         'height': '100%'
     });
 
+    // append the right image based on the screen dimension
     /*$image.html($(document.createElement("picture"))
         .append($(document.createElement('source'))
             .attr({
@@ -190,13 +191,16 @@ $('#searchBox input')
     .on('keyup', function(){
         $container.html(original);
         var output = $container.html();
-        var word = $('#searchBox input').val().replace(/[^a-zA-Z0-9]/g, "").toLowerCase();
+        var word = $('#searchBox input').val().replace(/[^a-zA-Z0-9]/g, "").toLowerCase(); // input string
+
+        // cycle through the text until no matches are found
         var i = 0;
         while (i+word.length<=output.length) {
+            // get the index of a word that matches the input string (regex \b matches only begin of words)
             var start = output.replace(/[^a-zA-Z0-9]/g, " ").toLowerCase().regexIndexOf(new RegExp("\\b"+word, "g"), i);
             var end = start+word.length;
             if (start >= 0) {
-                var $wrap = $(document.createElement("mark"))
+                var $wrap = $(document.createElement("mark")) // wrap the text with mark html5 element to highlight it
                     .text(output.substring(start, end));
                 output = [output.slice(0, start), $wrap[0].outerHTML, output.slice(end)].join('');
             } else break;
@@ -204,9 +208,11 @@ $('#searchBox input')
         }
         $container.html(output);
     })
+    // save the original text
     .on('focus', function () {
         original = $container.html();
     })
+    // restore the original text
     .on('focusout', function () {
         $container.html(original);
         $('#searchBox input').val('');
