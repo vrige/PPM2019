@@ -45,10 +45,10 @@ $(window).on('load', function () {
     var keys = Object.keys(Opera);
     var maxImages = keys.length;
     while (k < numImages && k < maxImages) { // we could make the 5 images choice random instead of linear
-        var img = Opera[keys[k]].img+'.'+imgType;
+        var img = Opera[keys[k]].img+'_720.'+imgType;
         var $item = $('<li></li>')
             .attr('data-index', keys[k])
-            .css('background-image', 'url(./img/slideshow/'+img+')');
+            .css('background-image', 'url(./img/opere/'+img+')');
         $slider.append($item);
         k++;
     }

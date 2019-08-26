@@ -1,11 +1,15 @@
-var $img = $(new Image());
-// FIXME: speech_rec not working?
+var opera = Opera[operaID];
+var $img = $(document.createElement("img"))
+    .attr('id', 'operaImage')
+    .attr({
+        'src': "./img/opere/"+opera.img+"_720.jpg"
+    })
+    .css('width', '100%');
 // TODO : fix description height to handle long text (it should have a dynamic height)
 // TODO : when zooming a detail get the detail from the larger image and not from the scaled down image to avoid quality drop
 $(window).on('load', function () {
     // generate page html
     console.log("Opera: "+operaID);
-    var opera = Opera[operaID];
 
     $('title').text(opera.nome);
     $('#headerWrapper h1').text(opera.nome+', '+opera.artista.nome);
@@ -47,29 +51,23 @@ $(window).on('load', function () {
         return;
     }
 
-    $img[0].src = "./img/slideshow/"+opera.img+"."+imgType;
-    $img.css({
-        'visibility': 'hidden',
-        'width': '100%',
-        'height': '100%'
-    });
-
-    // append the right image based on the screen dimension
-    /*$image.html($(document.createElement("picture"))
+    // print the image to get dimensions
+    // html5 source to fetch the right image based on the screen dimension
+    $image.html($(document.createElement("picture"))
         .append($(document.createElement('source'))
             .attr({
                 'type': 'image/webp',
-                'srcset': "./img/slideshow/"+opera.img+".webp 1.5x, ./img/slideshow/"+opera.img.replace("_820", "")+".webp 2x"
+                'srcset': "./img/opere/"+opera.img+"_360.webp 360w, ./img/opere/"+opera.img+"_720.webp 720w,  ./img/opere/"+opera.img+"_1024.webp 1024w"
             })
         )
-        .append($(document.createElement("img"))
+        .append($(document.createElement('source'))
             .attr({
-                'src': "./img/slideshow/"+opera.img+".jpg"
+                'type': 'image/jpeg',
+                'srcset': "./img/opere/"+opera.img+"_360.jpg 360w, ./img/opere/"+opera.img+"_720.jpg 720w,  ./img/opere/"+opera.img+"_1024.jpg 1024w"
             })
-            .css('width', '100%')
         )
+        .append($img)
     );
-    return;*/
 
     $img.on('load', function () {
         var $canvas = $(document.createElement('canvas'))
@@ -81,7 +79,6 @@ $(window).on('load', function () {
                 'type': 'checkbox'
             });
 
-        $image.html($img); // print the image to get dimensions
         // FIXME: on iOS 9 the image appears to have height=0 when inserted in the div, so canvas will not be visible
 
         $canvas
@@ -191,7 +188,7 @@ function showDetail(detail) {
     $('#description').text(detail.descrizione);
 }
 
-// highlight searched text or special artwork information
+// highlight searched text or special artwork information or show detail
 var $container = $('#info');
 var original;
 $('#searchBox input')
@@ -201,6 +198,7 @@ $('#searchBox input')
         var details = Opera[operaID].dettagli;
         var word = $(this).val().replace(/[^a-zA-Z0-9]/g, "").toLowerCase(); // input string
         // if looking for a detail, show it immediately
+        // FIXME: opening a detail when one is already opened causes the detail to shrink to previous one dimension
         for (var det in details) {
             if (word === details[det].nome.replace(/[^a-zA-Z0-9]/g, "").toLowerCase()) {
                 showDetail(details[det]);

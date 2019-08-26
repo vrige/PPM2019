@@ -29,7 +29,7 @@ function showFilter() {
               'href': 'opera_page.html?opera='+id
             })
             .data('id', id); // save id to retrieve when clicked
-        if (current.hasOwnProperty("dettagli") && current.dettagli.length) { // TODO: remove this
+        if (current.hasOwnProperty("dettagli") && current.dettagli.length) {
           $opera.css('color', 'yellow');
         }
         $opera.html(current.nome + ', ' + current.artista.nome + ', ' + current.data + ', ' + current.ubicazione.nome);
