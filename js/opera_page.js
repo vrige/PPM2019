@@ -7,6 +7,55 @@ var $img = $(document.createElement("img"))
     .css('width', '100%');
 // TODO : fix description height to handle long text (it should have a dynamic height)
 // TODO : when zooming a detail get the detail from the larger image and not from the scaled down image to avoid quality drop
+
+
+var canvas = {
+    element: $(document.createElement('canvas'))
+        .attr('id', 'operaCanvas')
+        .text('Il tuo browser è troppo vecchio!'),
+    setWidth: function (w) {
+        this.width = w;
+        this.element[0].width = w;
+    },
+    setHeight: function (h) {
+        this.height = h;
+        this.element[0].height = h;
+    },
+    detailsShown: false,
+    inDetail: false,
+    toggleDetails: function() {
+        if(!this.detailsShown) {
+            // draw details
+            var det = Opera[operaID].dettagli;
+            if (Opera[operaID].hasOwnProperty("dettagli")) {
+                this.detailsShown = true;
+                this.context.lineWidth = "2";
+                this.context.strokeStyle = "yellow";
+                for (var i in det) {
+                    this.context.strokeRect(det[i].x/100*this.width,det[i].y/100*this.height,det[i].width/100*this.width,det[i].height/100*this.height);
+                }
+            }
+        } else {
+            this.detailsShown = false;
+            // remove details
+            this.context.clearRect(0, 0, this.width, this.height);
+            this.context.drawImage($img[0], 0, 0, this.width, this.height);
+        }
+    },
+    animate: function (t, l, w) {
+        if (!this.inDetail) {
+            this.inDetail = true;
+        }
+
+        this.element.animate({
+            top: t,
+            left: l,
+            width: w
+        }, 500);
+    }
+};
+var $imgWrap = $('#artImage');
+
 $(window).on('load', function () {
     // generate page html
     console.log("Opera: "+operaID);
@@ -21,7 +70,6 @@ $(window).on('load', function () {
                 })
         );
 
-    var $image = $('#artImage');
     $('#name')
         .attr('data-info', 'nome opera titolo')
         .text(opera.nome)
@@ -40,9 +88,9 @@ $(window).on('load', function () {
         .text(opera.descrizione);
     $('#info').data('operaInfo', $('#info').html()); // save the art details to restore
 
-    $image.html('<div class="loader"></div>');
+    $imgWrap.html('<div class="loader"></div>');
     if (opera.img === "") {
-        $image
+        $imgWrap
             .css({'font-size': '12px',
                 'text-align': 'center'
                 }
@@ -53,7 +101,7 @@ $(window).on('load', function () {
 
     // print the image to get dimensions
     // html5 source to fetch the right image based on the screen dimension
-    $image.html($(document.createElement("picture"))
+    $imgWrap.html($(document.createElement("picture"))
         .append($(document.createElement('source'))
             .attr({
                 'type': 'image/webp',
@@ -69,52 +117,36 @@ $(window).on('load', function () {
         .append($img)
     );
 
-    $img.on('load', function () {
-        var $canvas = $(document.createElement('canvas'))
-            .attr('id', 'operaCanvas')
-            .text('Il tuo browser è troppo vecchio!');
-        var $input = $(document.createElement('input'))
-            .attr({
-                'id': 'canvasBtn',
-                'type': 'checkbox'
-            });
-
+    $img.on('load', function () { // FIXME: img on load forces the jpg to be downloaded even if not necessary
         // FIXME: on iOS 9 the image appears to have height=0 when inserted in the div, so canvas will not be visible
+        $imgWrap.css({
+            'width': $img.width(),
+            'height': $img.height()
+        });
+        canvas.setWidth($img.width());
+        canvas.setHeight($img.height());
+        canvas.context = canvas.element[0].getContext("2d");
+        canvas.context.drawImage($img[0], 0, 0, $imgWrap.width(), $imgWrap.height());
 
-        $canvas
-            .data({
-                'width': $img.width(),
-                'height': $img.height()
-            }) // save width and height to restore
-            .css({
-                'width': $img.width(),
-                'height': $img.height()
-            });
-
-        var ctx = $canvas[0].getContext("2d");
-        ctx.drawImage($img[0], 0, 0, $canvas[0].width, $canvas[0].height);
-
-        $image
-            .html($canvas)
-            .append($input)
-            .append($(document.createElement("span"))
+        $imgWrap
+            .html(canvas.element)
+            .after($(document.createElement("span"))
                     .attr('id', 'canvasInfo')
                     .text('Clicca l\'immagine per mostrare/nascondere i dettagli')
             );
     });
 });
 
-var inDetail = false; // prevent from firing detail check when already in a detail
 $('#filterBox').on('click', '#operaCanvas', function (e) {
     e.stopImmediatePropagation();
-    var $canvasBtn = $('#canvasBtn');
 
     // check if a detail has been clicked and draw it
-    if ($canvasBtn[0].checked && !inDetail) {
-        var imgW = $(this).width();
-        var imgH = $(this).height();
+    if (canvas.detailsShown && !canvas.inDetail) {
+        canvas.toggleDetails();
         var x = e.offsetX;
         var y = e.offsetY;
+        var imgW = $(this).width();
+        var imgH = $(this).height();
         var dets = Opera[operaID].dettagli;
         for (var i in dets) {
             var det = dets[i];
@@ -124,76 +156,83 @@ $('#filterBox').on('click', '#operaCanvas', function (e) {
             var detH = det.height / 100 * imgH;
             // if clicked in a detail box
             if ((detX <= x && x <= detX + detW) && (detY <= y && y <= detY + detH)) {
-                showDetail(det);
+                canvas.showDetail(det);
                 return;
             }
         }
-    } else if (inDetail) { // if the detail was drawn by searching for it, check the checkbox to act like it was clicked
-        $canvasBtn[0].checked = true;
-    }
-    inDetail = false;
-    $canvasBtn[0].checked = !$canvasBtn[0].checked;
-    $canvasBtn.trigger('change');
-})
-    .on('change', '#canvasBtn', function () {
-        var canvas = $('#operaCanvas')[0];
-        var ctx = canvas.getContext("2d");
-        if (this.checked) {
-            // draw details
-            var det = Opera[operaID].dettagli;
-            if (Opera[operaID].hasOwnProperty("dettagli")) {
-                ctx.lineWidth = "2";
-                ctx.strokeStyle = "yellow";
-
-                for (var i in det) {
-                    ctx.strokeRect(det[i].x/100*canvas.width,det[i].y/100*canvas.height,det[i].width/100*canvas.width,det[i].height/100*canvas.height);
-                }
-            }
-        } else {
-            // remove details
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            // restore original dimensions
-            $(canvas).css({
-                'width': $(canvas).data('width'),
-                'height': $(canvas).data('height')
-            });
-            ctx.drawImage($img[0], 0, 0, canvas.width, canvas.height);
-            $('#canvasInfo').text('Clicca l\'immagine per mostrare/nascondere i dettagli');
-            $('#info').html($('#info').data('operaInfo'));
-        }
-    });
-
-function showDetail(detail) {
-    inDetail = true;
-    var canvas = $('#operaCanvas')[0];
-    var ctx = canvas.getContext("2d");
-    // update dimensions to match the real image
-    var detX = detail.x / 100 * $img[0].width;
-    var detY = detail.y / 100 * $img[0].height;
-    var detW = detail.width / 100 * $img[0].width;
-    var detH = detail.height / 100 * $img[0].height;
-
-    ctx.clearRect(0,0, canvas.width, canvas.height);
-    // check if the resized height fits in the canvas, else resize the width
-    if(detH*$(canvas).width()/detW <= $(canvas).height()) {
-        $(canvas).css('height', detH*$(canvas).width()/detW);
-        ctx.drawImage($img[0], detX, detY, detW, detH, 0, 0, canvas.width, canvas.height);
+    } else if (canvas.inDetail) {
+        canvas.animate(0, 0, canvas.width);
+        canvas.inDetail = false;
+        $('#canvasInfo').text('Clicca l\'immagine per mostrare/nascondere i dettagli');
+        var $info = $('#info');
+        $info.html($info.data('operaInfo'));
     } else {
-        $(canvas).css('width', detW*$(canvas).height()/detH);
-        ctx.drawImage($img[0], detX, detY, detW, detH, 0, 0, canvas.width, canvas.height);
+        canvas.toggleDetails();
     }
+});
+
+canvas.showDetail = function(detail) {
+    var imgW = canvas.width;
+    var imgH = canvas.height;
+    var detX = detail.x/100*imgW;
+    var detY = detail.y/100*imgH;
+    var detW = detail.width/100*imgW;
+    var detH = detail.height/100*imgH;
+
+    function getScale() { // returns scale and position
+        var maxP, zoomW = 0, zoomH = 0, newDetW, newDetH, top, left;
+
+        if (imgW >= imgH && detW === detH){
+            maxP = (imgH-40)*100/imgW;
+            zoomW = maxP*100/(detW*100/imgW); // ingrandimento in modo che il dettaglio occupi il maxP% in larghezza dello spazio disponibile
+            top = (detY*zoomW/100)-20;//centra l'immagine in altezza
+            left = (detX*zoomW/100)-(100-maxP)/2*imgW/100;//centra l'immagine in larghezza
+        }
+        if ((imgW >= imgH && detW/detH < imgW/imgH)||(imgW < imgH && detH/detW > imgH/imgW)){
+            newDetW = (imgH-40)/detH*detW;//larghezza del dettaglio ingrandito
+            maxP = 100*newDetW/imgW;
+            zoomW = maxP*100/(detW*100/imgW);
+            top = (detY*zoomW/100)-20;
+            left = (detX*zoomW/100)-(100-maxP)/2*imgW/100;
+        }
+        if ((imgW >= imgH && detW/detH > imgW/imgH)||(imgW < imgH && detH/detW < imgH/imgW)){
+            newDetH = (imgW-40)/detW*detH;
+            maxP = 100*newDetH/imgH;
+            zoomH = maxP*100/(detH*100/imgH);
+            top = (detY*zoomH/100)-(100-maxP)/2*imgH/100;
+            left = (detX*zoomH/100)-20;
+        }
+        if (imgW < imgH && detW === detH){
+            maxP = (imgW-40)*100/imgH;
+            zoomH = maxP*100/(detH*100/imgH);
+            top = (detY*zoomH/100)-20;
+            left = (detX*zoomH/100)-(100-maxP)/2*imgH/100;
+        }
+
+        // ritorna [spostamento dall'alto, spostamento da sinistra, ingrandimento in larghezza, ingrandimento in altezza]
+        return [-top , -left, zoomW, zoomH];
+    }
+
+    var transform = getScale();
+    if (transform[3] === 0 ) {
+        canvas.animate(transform[0], transform[1], transform[2]/100*$imgWrap.width());
+    }
+    else {
+        canvas.animate(transform[0], transform[1], transform[3]/100*$imgWrap.height());
+    }
+
     // update info
     $('#canvasInfo').text('Clicca l\'immagine per tornare all\'opera completa');
     $('#title').html($('#title h2').html($('#name').text(detail.nome)));
     $('#description').text(detail.descrizione);
-}
+};
 
 // highlight searched text or special artwork information or show detail
-var $container = $('#info');
+var $textWrap = $('#info');
 var original;
 $('#searchBox input')
     .on('keyup', function(){
-        $container.html(original);
+        $textWrap.html(original);
 
         var details = Opera[operaID].dettagli;
         var word = $(this).val().replace(/[^a-zA-Z0-9]/g, "").toLowerCase(); // input string
@@ -201,8 +240,8 @@ $('#searchBox input')
         // FIXME: opening a detail when one is already opened causes the detail to shrink to previous one dimension
         for (var det in details) {
             if (word === details[det].nome.replace(/[^a-zA-Z0-9]/g, "").toLowerCase()) {
-                showDetail(details[det]);
-                original = $container.html();
+                canvas.showDetail(details[det]);
+                original = $textWrap.html();
                 $(this).trigger('focusout');
                 return;
             }
@@ -218,7 +257,7 @@ $('#searchBox input')
         });
 
         // cycle through the text until no matches are found
-        var $description = $container.children('#description');
+        var $description = $textWrap.children('#description');
         var output = $description.html();
         var i = 0;
         while (i+word.length<=output.length) {
@@ -236,11 +275,11 @@ $('#searchBox input')
     })
     // save the original text
     .on('focus', function () {
-        original = $container.html();
+        original = $textWrap.html();
     })
     // restore the original text
     .on('focusout', function () {
-        $container.html(original);
+        $textWrap.html(original);
         $(this).val('');
     });
 
