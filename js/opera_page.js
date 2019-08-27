@@ -51,7 +51,7 @@ var canvas = {
             top: t,
             left: l,
             width: w
-        }, 500);
+        }, 350);
     }
 };
 var $imgWrap = $('#artImage');
