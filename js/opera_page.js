@@ -42,16 +42,27 @@ var canvas = {
             this.context.drawImage($img[0], 0, 0, this.width, this.height);
         }
     },
-    animate: function (t, l, w) {
+    animate: function (t, l, w, h) {
+        if (h === undefined) {
+            h = false;
+        }
         if (!this.inDetail) {
             this.inDetail = true;
         }
 
-        this.element.animate({
-            top: t,
-            left: l,
-            width: w
-        }, 350);
+        if (!h) {
+            this.element.animate({
+                top: t,
+                left: l,
+                width: w
+            }, 350);
+        } else {
+            this.element.animate({
+                top: t,
+                left: l,
+                height: w
+            }, 350);
+        }
     }
 };
 var $imgWrap = $('#artImage');
@@ -161,7 +172,10 @@ $('#filterBox').on('click', '#operaCanvas', function (e) {
             }
         }
     } else if (canvas.inDetail) {
-        canvas.animate(0, 0, canvas.width);
+        if (canvas.width >= canvas.height)
+            canvas.animate(0, 0, canvas.width);
+        else
+            canvas.animate(0, 0, canvas.height, 1);
         canvas.inDetail = false;
         $('#canvasInfo').text('Clicca l\'immagine per mostrare/nascondere i dettagli');
         var $info = $('#info');
@@ -178,47 +192,25 @@ canvas.showDetail = function(detail) {
     var detY = detail.y/100*imgH;
     var detW = detail.width/100*imgW;
     var detH = detail.height/100*imgH;
+    if (detW >= detH)
+        detH = detW;
+    else
+        detW = detH;
 
-    function getScale() { // returns scale and position
-        var maxP, zoomW = 0, zoomH = 0, newDetW, newDetH, top, left;
-
-        if (imgW >= imgH && detW === detH){
-            maxP = (imgH-40)*100/imgW;
-            zoomW = maxP*100/(detW*100/imgW); // ingrandimento in modo che il dettaglio occupi il maxP% in larghezza dello spazio disponibile
-            top = (detY*zoomW/100)-20;//centra l'immagine in altezza
-            left = (detX*zoomW/100)-(100-maxP)/2*imgW/100;//centra l'immagine in larghezza
-        }
-        if ((imgW >= imgH && detW/detH < imgW/imgH)||(imgW < imgH && detH/detW > imgH/imgW)){
-            newDetW = (imgH-40)/detH*detW;//larghezza del dettaglio ingrandito
-            maxP = 100*newDetW/imgW;
-            zoomW = maxP*100/(detW*100/imgW);
-            top = (detY*zoomW/100)-20;
-            left = (detX*zoomW/100)-(100-maxP)/2*imgW/100;
-        }
-        if ((imgW >= imgH && detW/detH > imgW/imgH)||(imgW < imgH && detH/detW < imgH/imgW)){
-            newDetH = (imgW-40)/detW*detH;
-            maxP = 100*newDetH/imgH;
-            zoomH = maxP*100/(detH*100/imgH);
-            top = (detY*zoomH/100)-(100-maxP)/2*imgH/100;
-            left = (detX*zoomH/100)-20;
-        }
-        if (imgW < imgH && detW === detH){
-            maxP = (imgW-40)*100/imgH;
-            zoomH = maxP*100/(detH*100/imgH);
-            top = (detY*zoomH/100)-20;
-            left = (detX*zoomH/100)-(100-maxP)/2*imgH/100;
-        }
-
-        // ritorna [spostamento dall'alto, spostamento da sinistra, ingrandimento in larghezza, ingrandimento in altezza]
-        return [-top , -left, zoomW, zoomH];
+    var maxP, zoom = 0, top, left;
+    if (imgW >= imgH){
+        maxP = (imgH-40)*100/imgW;
+        zoom = maxP*100/(detW*100/imgW); // ingrandimento in modo che il dettaglio occupi il maxP% in larghezza dello spazio disponibile
+        top = (detY*zoom/100)-20;//centra l'immagine in altezza
+        left = (detX*zoom/100)-(100-maxP)/2*imgW/100;//centra l'immagine in larghezza
+        canvas.animate(-top, -left, zoom/100*$imgWrap.width());
     }
-
-    var transform = getScale();
-    if (transform[3] === 0 ) {
-        canvas.animate(transform[0], transform[1], transform[2]/100*$imgWrap.width());
-    }
-    else {
-        canvas.animate(transform[0], transform[1], transform[3]/100*$imgWrap.height());
+    if (imgW < imgH){
+        maxP = (imgW-40)*100/imgH;
+        zoom = maxP*100/(detH*100/imgH);
+        top = (detY*zoom/100)-20;
+        left = (detX*zoom/100)-(100-maxP)/2*imgH/100;
+        canvas.animate(-top, -left, zoom/100*$imgWrap.height(), 1);
     }
 
     // update info
