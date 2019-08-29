@@ -1,17 +1,11 @@
 var opera = Opera[operaID];
-var $img = $(document.createElement("img"))
-    .attr('id', 'operaImage')
-    .attr({
-        'src': "./img/opere/"+opera.img+"_720.jpg"
-    })
-    .css('width', '100%');
-// TODO : fix description height to handle long text (it should have a dynamic height)
-// TODO : when zooming a detail get the detail from the larger image and not from the scaled down image to avoid quality drop
+var $img;
 
+// TODO : fix description height to handle long text (it should have a dynamic height)
 
 var canvas = {
     element: $(document.createElement('canvas'))
-        .attr('id', 'operaCanvas')
+        .attr('class', 'operaCanvas')
         .text('Il tuo browser è troppo vecchio!'),
     setWidth: function (w) {
         this.width = w;
@@ -42,32 +36,78 @@ var canvas = {
             this.context.drawImage($img[0], 0, 0, this.width, this.height);
         }
     },
-    animate: function (t, l, w, h) {
-        if (h === undefined) {
+    animate: function (t, l, w, fromSearch, h) {
+        if (h === undefined)
             h = false;
-        }
-        if (!this.inDetail) {
+        if (fromSearch === undefined)
+            fromSearch = false;
+        else if (fromSearch) // remove the top canvas if coming from the search bar to show the animation
+            $('#topCanvas').remove();
+        var betterImg = new Image(); // FIXME: does it get downloaded multiple times when clicking on multiple details?
+        if (!this.inDetail || fromSearch) {
             this.inDetail = true;
+            betterImg.src = "./img/opere/"+opera.img+"."+imgType;
+            $(betterImg).on('load', function () {
+                if (!h) {
+                    canvas.element.animate({
+                        top: t,
+                        left: l,
+                        width: w
+                    }, 350, changeImg);
+                } else {
+                    canvas.element.animate({
+                        top: t,
+                        left: l,
+                        height: w
+                    }, 350, changeImg);
+                }
+            });
+        } else {
+            this.inDetail = false;
+            $('#topCanvas').remove(); // remove the top canvas to zoom out
+            if (!h) {
+                canvas.element.animate({
+                    top: t,
+                    left: l,
+                    width: w
+                }, 350);
+            } else {
+                canvas.element.animate({
+                    top: t,
+                    left: l,
+                    height: w
+                }, 350);
+            }
         }
 
-        if (!h) {
-            this.element.animate({
-                top: t,
-                left: l,
-                width: w
-            }, 350);
-        } else {
-            this.element.animate({
-                top: t,
-                left: l,
-                height: w
-            }, 350);
+        function changeImg() { // draw a better quality image over the canvas when the zoom completes
+            var propX = betterImg.width/canvas.element.width();
+            var propY = betterImg.height/canvas.element.height();
+
+            var canvasNew = document.createElement("canvas");
+            canvasNew.width = canvas.width;
+            canvasNew.height = canvas.height;
+            $(canvasNew).attr({
+                'id': 'topCanvas',
+                'class': 'operaCanvas'
+            });
+            canvasNew.getContext("2d").drawImage(betterImg, -l*propX, -t*propY, canvas.width*propX, canvas.height*propY, 0, 0, canvas.width, canvas.height);
+            $imgWrap.append(canvasNew);
         }
+
     }
 };
 var $imgWrap = $('#artImage');
 
 $(window).on('load', function () {
+    $img = $(document.createElement("img"))
+        .attr({
+            'id': 'operaImage',
+            'src': './img/opere/'+opera.img+'_1024.'+imgType,
+            'srcset': './img/opere/'+opera.img+'_360.'+imgType+' 360w, ./img/opere/'+opera.img+'_720.'+imgType+' 720w,  ./img/opere/'+opera.img+'_1024.'+imgType+' 1024w'
+        })
+        .css('width', '100%');
+
     // generate page html
     console.log("Opera: "+operaID);
 
@@ -112,23 +152,9 @@ $(window).on('load', function () {
 
     // print the image to get dimensions
     // html5 source to fetch the right image based on the screen dimension
-    $imgWrap.html($(document.createElement("picture"))
-        .append($(document.createElement('source'))
-            .attr({
-                'type': 'image/webp',
-                'srcset': "./img/opere/"+opera.img+"_360.webp 360w, ./img/opere/"+opera.img+"_720.webp 720w,  ./img/opere/"+opera.img+"_1024.webp 1024w"
-            })
-        )
-        .append($(document.createElement('source'))
-            .attr({
-                'type': 'image/jpeg',
-                'srcset': "./img/opere/"+opera.img+"_360.jpg 360w, ./img/opere/"+opera.img+"_720.jpg 720w,  ./img/opere/"+opera.img+"_1024.jpg 1024w"
-            })
-        )
-        .append($img)
-    );
+    $imgWrap.html($img);
 
-    $img.on('load', function () { // FIXME: img on load forces the jpg to be downloaded even if not necessary
+    $img.on('load', function () {
         // FIXME: on iOS 9 the image appears to have height=0 when inserted in the div, so canvas will not be visible
         $imgWrap.css({
             'width': $img.width(),
@@ -148,7 +174,7 @@ $(window).on('load', function () {
     });
 });
 
-$('#filterBox').on('click', '#operaCanvas', function (e) {
+$('#filterBox').on('click', '.operaCanvas', function (e) {
     e.stopImmediatePropagation();
 
     // check if a detail has been clicked and draw it
@@ -173,10 +199,9 @@ $('#filterBox').on('click', '#operaCanvas', function (e) {
         }
     } else if (canvas.inDetail) {
         if (canvas.width >= canvas.height)
-            canvas.animate(0, 0, canvas.width);
+            canvas.animate(0, 0, canvas.width, false);
         else
-            canvas.animate(0, 0, canvas.height, 1);
-        canvas.inDetail = false;
+            canvas.animate(0, 0, canvas.height, false, 1);
         $('#canvasInfo').text('Clicca l\'immagine per mostrare/nascondere i dettagli');
         var $info = $('#info');
         $info.html($info.data('operaInfo'));
@@ -185,7 +210,9 @@ $('#filterBox').on('click', '#operaCanvas', function (e) {
     }
 });
 
-canvas.showDetail = function(detail) {
+canvas.showDetail = function(detail, fromSearch) {
+    if (fromSearch === undefined)
+        fromSearch = false;
     var imgW = canvas.width;
     var imgH = canvas.height;
     var detX = detail.x/100*imgW;
@@ -203,14 +230,14 @@ canvas.showDetail = function(detail) {
         zoom = maxP*100/(detW*100/imgW); // ingrandimento in modo che il dettaglio occupi il maxP% in larghezza dello spazio disponibile
         top = (detY*zoom/100)-20;//centra l'immagine in altezza
         left = (detX*zoom/100)-(100-maxP)/2*imgW/100;//centra l'immagine in larghezza
-        canvas.animate(-top, -left, zoom/100*$imgWrap.width());
+        canvas.animate(-top, -left, zoom/100*$imgWrap.width(), fromSearch);
     }
     if (imgW < imgH){
         maxP = (imgW-40)*100/imgH;
         zoom = maxP*100/(detH*100/imgH);
         top = (detY*zoom/100)-20;
         left = (detX*zoom/100)-(100-maxP)/2*imgH/100;
-        canvas.animate(-top, -left, zoom/100*$imgWrap.height(), 1);
+        canvas.animate(-top, -left, zoom/100*$imgWrap.height(), fromSearch, 1);
     }
 
     // update info
@@ -232,7 +259,7 @@ $('#searchBox input')
         // FIXME: opening a detail when one is already opened causes the detail to shrink to previous one dimension
         for (var det in details) {
             if (word === details[det].nome.replace(/[^a-zA-Z0-9]/g, "").toLowerCase()) {
-                canvas.showDetail(details[det]);
+                canvas.showDetail(details[det], true);
                 original = $textWrap.html();
                 $(this).trigger('focusout');
                 return;
