@@ -272,6 +272,7 @@ $('#searchBox input')
             var queries = $(this).attr('data-info').split(" ");
             if (queries.includes(word)) {
                 $(this).wrap('<mark></mark>');
+                speak($(this).text());
             }
         });
 
