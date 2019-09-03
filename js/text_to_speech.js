@@ -1,5 +1,3 @@
-var button = $("#speechBtn");
-var searchBox = $("#searchBox");
 var synth = window.speechSynthesis;
 var utter = new SpeechSynthesisUtterance();
 
