@@ -35,7 +35,7 @@ Modernizr.on('webp', function(result) {
 $(window).on('load', function () {
     // set proper height for the filterBox
     $('#filterBox').css({
-        'top': $("#searchBox").outerHeight(true) + "px"
+        'margin-top': $("#searchBox").outerHeight(true)+10 + "px"
     });
     // create as much li as there are artworks (actually take only 5 to not make client download every image)
     // load slider images as background

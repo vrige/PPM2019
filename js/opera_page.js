@@ -1,8 +1,6 @@
 var opera = Opera[operaID];
 var $img;
 
-// TODO : fix description height to handle long text (it should have a dynamic height)
-
 var canvas = {
     element: $(document.createElement('canvas'))
         .attr('class', 'operaCanvas')
@@ -137,8 +135,11 @@ $(window).on('load', function () {
         .text(opera.ubicazione.nome);
     $('#description')
         .text(opera.descrizione);
-    $('#info').data('operaInfo', $('#info').html()); // save the art details to restore
+    var $operaInfo = $('#info');
+    $operaInfo.data('operaInfo', $operaInfo.html()); // save the art details to restore
 
+    // print a loader while the image is being downloaded;
+    // if the opera has no image print it and return
     $imgWrap.html('<div class="loader"></div>');
     if (opera.img === "") {
         $imgWrap
@@ -171,6 +172,15 @@ $(window).on('load', function () {
                     .attr('id', 'canvasInfo')
                     .text('Clicca l\'immagine per mostrare/nascondere i dettagli')
             );
+
+        // calculate the correct description height to fill the screen
+        var $filterBox = $('#filterBox');
+        var filterBoxMaxHeight = $('#wrapper').height()-parseInt($filterBox.css('margin-top'))-parseInt($filterBox.css('margin-bottom'));
+        $filterBox.css('height', filterBoxMaxHeight+'px');
+        var descriptionHeight = $('#info').height()-$('#title').height();
+        $('#description').css('max-height', descriptionHeight+'px');
+        $filterBox.css('height', '');
+        $filterBox.css('max-height', filterBoxMaxHeight+'px');
     });
 });
 
