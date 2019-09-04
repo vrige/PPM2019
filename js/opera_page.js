@@ -172,17 +172,20 @@ $(window).on('load', function () {
                     .attr('id', 'canvasInfo')
                     .text('Clicca l\'immagine per mostrare/nascondere i dettagli')
             );
-
-        // calculate the correct description height to fill the screen
-        var $filterBox = $('#filterBox');
-        var filterBoxMaxHeight = $('#wrapper').height()-parseInt($filterBox.css('margin-top'))-parseInt($filterBox.css('margin-bottom'));
-        $filterBox.css('height', filterBoxMaxHeight+'px');
-        var descriptionHeight = $('#info').height()-$('#title').height();
-        $('#description').css('max-height', descriptionHeight+'px');
-        $filterBox.css('height', '');
-        $filterBox.css('max-height', filterBoxMaxHeight+'px');
+        setBoxHeight();
     });
 });
+
+function setBoxHeight() {
+    // calculate the correct description height to fill the screen
+    var $filterBox = $('#filterBox');
+    var filterBoxMaxHeight = $('#wrapper').height();
+    $filterBox.outerHeight(filterBoxMaxHeight, true);
+    var descriptionHeight = $('#info').height()-$('#title').height()-parseInt($('#description').css('margin-top'));
+    $('#description').css('max-height', descriptionHeight+'px');
+    $filterBox.css('height', '');
+    $filterBox.css('max-height', filterBoxMaxHeight+'px');
+}
 
 $('#filterBox').on('click', '.operaCanvas', function (e) {
     e.stopImmediatePropagation();
@@ -212,9 +215,11 @@ $('#filterBox').on('click', '.operaCanvas', function (e) {
             canvas.animate(0, 0, canvas.width, false);
         else
             canvas.animate(0, 0, canvas.height, false, 1);
+        // restore the opera info
         $('#canvasInfo').text('Clicca l\'immagine per mostrare/nascondere i dettagli');
         var $info = $('#info');
         $info.html($info.data('operaInfo'));
+        setBoxHeight();
     } else {
         canvas.toggleDetails();
     }
@@ -254,6 +259,8 @@ canvas.showDetail = function(detail, fromSearch) {
     $('#canvasInfo').text('Clicca l\'immagine per tornare all\'opera completa');
     $('#title').html($('#title h2').html($('#name').text(detail.nome)));
     $('#description').text(detail.descrizione);
+
+    setBoxHeight();
 };
 
 // highlight searched text or special artwork information or show detail
