@@ -181,10 +181,10 @@ function setBoxHeight() {
     var $filterBox = $('#filterBox');
     var filterBoxMaxHeight = $('#wrapper').height();
     $filterBox.outerHeight(filterBoxMaxHeight, true);
+    $filterBox.css('max-height', filterBoxMaxHeight+'px');
     var descriptionHeight = $('#info').height()-$('#title').height()-parseInt($('#description').css('margin-top'));
     $('#description').css('max-height', descriptionHeight+'px');
     $filterBox.css('height', '');
-    $filterBox.css('max-height', filterBoxMaxHeight+'px');
 }
 
 $('#filterBox').on('click', '.operaCanvas', function (e) {
