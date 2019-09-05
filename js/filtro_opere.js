@@ -54,13 +54,3 @@ $textInput.on('keyup', showFilter)
       $('#filterBox').css('width', '80%');
       $(this).trigger('keyup');
     });
-
-// detect if the keyboard is being shown FIXME: not working on iOS
-var _originalSize = $(window).width() + $(window).height();
-$(window).on('resize', function () {
-  if ($(window).width() + $(window).height() !== _originalSize) {
-    $('#filterBox').css('max-height', $('main').height()-$('#searchBox').outerHeight(true)-20+'px');
-  } else {
-    $('#filterBox').css('max-height', '80%');
-  }
-});

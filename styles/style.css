@@ -169,6 +169,7 @@ body {
 #filterBox {
     margin: 10px auto;
     width: 80%;
+    max-width: 820px;
     max-height: 80%;
     align-self: center;
     overflow-y: auto;
