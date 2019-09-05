@@ -30,7 +30,7 @@ function showFilter() {
             })
             .data('id', id); // save id to retrieve when clicked
         if (current.hasOwnProperty("dettagli") && current.dettagli.length) {
-          $opera.css('color', 'yellow');
+          $opera.css('color', '#ffffbb');
         }
         $opera.html(current.nome + ', ' + current.artista.nome + ', ' + current.data + ', ' + current.ubicazione.nome);
         $filterBox.append($opera);
