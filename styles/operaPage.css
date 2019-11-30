@@ -50,7 +50,7 @@
     display: block;
     margin-top: 3px;
     font-size: 12px;
-    color: rgba(255, 255, 255, 0.3);
+    color: rgba(255, 255, 255, 0.7);
 }
 
 #canvasInfo:before {
@@ -66,7 +66,7 @@
     mask-size: contain;
     -webkit-mask: url(../img/icons/information.svg) center no-repeat;
     -webkit-mask-size: contain;
-    background-color: rgba(255, 255, 255, 0.3);
+    background-color: rgba(255, 255, 255, 0.7);
 }
 
 #info {

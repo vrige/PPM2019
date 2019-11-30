@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
     <title>Opera page</title>
     <script>
+        var currentPage = window.location.pathname;
         // redirect to main page if come to this page without clicking on a link
         var url = new URL(window.location.href);
         // extract operaID the hard way since searchParams is not supported on every browser

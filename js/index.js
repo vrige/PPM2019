@@ -56,16 +56,74 @@ $(window).on('load', function () {
     writeInfo($('#slideshow li.active'));
     // cycle every 5s
     setInterval('cycleImages()', 5000); // timeout must be more than the fadeOut duration
+
+    showTutorial(currentPage);
 });
 
-$('#searchBox').on('click', function (e) {
+var $searchBox = $('#searchBox');
+var $searchBoxInput = $('#searchBox input');
+$searchBox.on('click', function (e) {
+    if ($searchBoxInput.prop('disabled'))
+        return;
     if (e.target.id !== "speakBtn") {
-        $("#searchBox input").trigger('focus');
+        $searchBoxInput.trigger('focus');
     }
 });
 
-$('#speakBtn').on('click', function (e) {
+var $speakBtn = $('#speakBtn');
+$speakBtn.on('click', function (e) {
     e.stopImmediatePropagation();
+    if ($searchBoxInput.prop('disabled'))
+        return;
     recognition.start();
     console.log('Ready to receive a word command.');
 });
+
+
+var storage;
+if (typeof(Storage) !== "undefined") {
+    storage = true;
+} else {
+    storage = false;
+    console.warn("The browser does not support Storage");
+}
+function showTutorial(page) {
+    if (storage) {
+        if (sessionStorage.getItem(page) ===  "true")
+            return;
+    }
+    $searchBoxInput.prop('disabled', true);
+    var $tutorial = $('<div id="tutorial"></div>');
+    var $tutBtn = $('<input id="tutBtn" type="button" value="Ho capito">')
+        .on('click', function () {
+            $searchBoxInput.prop('disabled', false);
+            // don't show the tutorial again by saving state in Storage
+            if (storage) {
+                sessionStorage.setItem(page, "true");
+            }
+
+            $tutorial.remove();
+        });
+
+    $tutorial.append($tutBtn);
+    $('body').prepend($tutorial);
+
+    // load correct images based on page
+    if (page.includes("opera_page")) {
+    } else {
+        var $index1 = $('<img src="./img/tutorial/index/index_1.png">')
+            .css({
+                'top': $searchBox.offset().top + $searchBox.height() + 5,
+                'left': 10
+            });
+        var $index2 = $('<img id="tut2" src="./img/tutorial/index/index_2.png">')
+            .css({
+                'top': $searchBox.offset().top + $searchBox.height() + 5
+            });
+
+        $tutorial.append([$index1, $index2]);
+        $index2.css('left', $speakBtn.offset().left - $index2.width()*0.65); // set left based on img size
+    }
+
+
+}
