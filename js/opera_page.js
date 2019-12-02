@@ -170,7 +170,7 @@ $(window).on('load', function () {
             .html(canvas.element)
             .after($(document.createElement("span"))
                     .attr('id', 'canvasInfo')
-                    .text('Clicca l\'immagine per mostrare/nascondere i dettagli')
+                    .text('Clicca l\'immagine per mostrare/nascondere gli appunti')
             );
         setBoxHeight();
     });
