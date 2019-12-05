@@ -266,6 +266,7 @@ canvas.showDetail = function(detail, fromSearch) {
     setBoxHeight();
 };
 
+// TODO: this will be removed, the  searchBox will be only used to search notes titles
 // highlight searched text or special artwork information or show detail
 var $textWrap = $('#info');
 var original;
@@ -328,3 +329,18 @@ String.prototype.regexIndexOf = function(regex, startpos) {
     var indexOf = this.substring(startpos || 0).search(regex);
     return (indexOf >= 0) ? (indexOf + (startpos || 0)) : indexOf;
 };
+
+$('#readDescBtn').on('click', function (e) {
+    e.stopImmediatePropagation();
+    if ($(this).attr("data-playing")) {
+        synth.cancel();
+        $(this)
+            .text("Leggi descrizione")
+            .removeAttr("data-playing");
+    } else {
+        speak($('#description').text());
+        $(this)
+            .html("&nbsp;&nbsp;&nbsp;Ferma lettura&nbsp;&nbsp;&nbsp;")
+            .attr("data-playing", "true");
+    }
+});

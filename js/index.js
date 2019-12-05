@@ -130,13 +130,13 @@ function showTutorial(page) {
             });
 
         var $readDescBtn = $('#readDescBtn');
-        var $opera_page_2 = $('<img id="tut2" src="./img/tutorial/opera_page/opera_page_2.png">')
+        var $opera_page_2 = $('<img src="./img/tutorial/opera_page/opera_page_2.png">')
             .css({
                 'top': $readDescBtn.offset().top + $readDescBtn.outerHeight()
             });
 
         var $artImage = $('#artImage');
-        var $opera_page_3 = $('<img id="tut2" src="./img/tutorial/opera_page/opera_page_3.png">')
+        var $opera_page_3 = $('<img src="./img/tutorial/opera_page/opera_page_3.png">')
             .css({
                 'top': $artImage.offset().top + $artImage.outerHeight() - 20
             });
@@ -152,7 +152,7 @@ function showTutorial(page) {
                 'top': $searchBox.offset().top + $searchBox.outerHeight(),
                 'left': 10
             });
-        var $index2 = $('<img id="tut2" src="./img/tutorial/index/index_2.png">')
+        var $index2 = $('<img src="./img/tutorial/index/index_2.png">')
             .css({
                 'top': $speakBtn.offset().top + $speakBtn.outerHeight()
             });
