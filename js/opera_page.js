@@ -173,7 +173,10 @@ $(window).on('load', function () {
                     .text('Clicca l\'immagine per mostrare/nascondere gli appunti')
             );
         setBoxHeight();
+
+        showTutorial(currentPage); // wait for the operaWrap to be filled to get the correct position for tutorials
     });
+
 });
 
 function setBoxHeight() {
