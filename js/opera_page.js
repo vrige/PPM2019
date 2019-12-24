@@ -397,6 +397,8 @@ $('#mostraLista').on('click', function(){
                 alert("Successo");
                 console.dir(data);
                 var obj = JSON.parse(data);
+                $('#listOfDetails').empty();
+                $('#textForProblem2').html("");
                 $.each(obj, function( index, $value ) {
                     $('#listOfDetails').prepend('<li id="detail_' + index + '"></li>');
                     $('#detail_' + index ).html($value);
@@ -410,6 +412,7 @@ $('#mostraLista').on('click', function(){
         });
     }else {
         console.log("devi fare il login");
+        $('#textForProblem2').html("devi fare il login");
     }
 
 });
