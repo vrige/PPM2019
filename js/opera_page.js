@@ -344,3 +344,72 @@ $('#readDescBtn').on('click', function (e) {
             .attr("data-playing", "true");
     }
 });
+$('#salva').on('click', function(){
+    console.log("cliccato salva");
+    var $dettaglio = '{x: 8.6, y: 7.7, width: 12.8, height: 24.2, nome: "Toro", descrizione: "Corpo scuro e testa bianc"}';
+    var $nickname = sessionStorage.getItem('nickname');
+    console.log(opera.nome);
+
+    if(sessionStorage["nickname"]){
+        console.log("login valido");
+        $.ajax({
+            type: 'POST',
+            url: 'https://ppm2020app.000webhostapp.com/query_opereDB.php',
+            data: {sender: 'saveDetail', nickname: $nickname, opera: opera.nome, dettaglio: $dettaglio},
+            success: function(data) {
+                alert("Successo");
+                console.dir(data);
+                var obj = JSON.parse(data);
+                if(obj.alreadyInDB === "true"){
+                    $('#textForProblem2').html("dettaglio per quell'opera già esistente");
+                    console.log("dettaglio per quell'opera già esistente");
+                }else{
+                    $('#textForProblem2').html("");
+                    console.log("nuovo dettaglio aggiunto");
+                    //  window.location = "../index.html";
+                }
+            },
+            error: function(e){
+                console.warn("Failed");
+                console.log(e);
+            }
+        });
+    }else {
+        console.log("devi fare il login");
+    }
+});
+$('#annulla').on('click', function(){
+    console.log("cliccato annulla");
+   // window.location = "../index.html";
+});
+$('#mostraLista').on('click', function(){
+    console.log("cliccato su mostraLista");
+    var $nickname = sessionStorage.getItem('nickname');
+
+    if(sessionStorage["nickname"]){
+        console.log("login valido ");
+        console.log($nickname);
+        $.ajax({
+            type: 'POST',
+            url: 'https://ppm2020app.000webhostapp.com/query_opereDB.php',
+            data: {sender: 'loadDetail', nickname: $nickname, opera: opera.nome},
+            success: function(data) {
+                alert("Successo");
+                console.dir(data);
+                var obj = JSON.parse(data);
+                $.each(obj, function( index, $value ) {
+                    $('#listOfDetails').prepend('<li id="detail_' + index + '"></li>');
+                    $('#detail_' + index ).html($value);
+
+                });
+            },
+            error: function(e){
+                console.warn("Failed");
+                console.log(e);
+            }
+        });
+    }else {
+        console.log("devi fare il login");
+    }
+
+});
