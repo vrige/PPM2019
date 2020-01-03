@@ -349,12 +349,11 @@ $('#readDescBtn').on('click', function (e) {
 
 $('#salva').on('click', function(){
     console.log("cliccato salva");
-    //   var $dettaglio = '{"x": 8.8, "y": 7.7, "width": 12.8, "height": 24.2, "nome": "CAne", "descrizione": "Corpo scuro e testa bianc"}';
 
-    var $dettaglioo = {x: 8.6, y: 7.7, width: 12.8, height: 24.2, nome: "Toro", descrizione: "Corpo scuro e testa bianc"};
+    var $dettaglioo = {x: 8.7, y: 7.7, width: 12.8, height: 24.2, nome: "Toroo", descrizione: "Corpo scuro e testa bianc"};
     var $dettaglio = JSON.stringify($dettaglioo);
+
     var $nickname = sessionStorage.getItem('nickname');
-    console.log(opera.nome);
 
     if(sessionStorage["nickname"]){
         console.log("login valido");
@@ -372,7 +371,7 @@ $('#salva').on('click', function(){
                 }else{
                     $('#textForProblem2').html("");
                     console.log("nuovo dettaglio aggiunto");
-                    //  window.location = "../index.html";
+                    //  window.location = "../index.html";   //FIXME: correggere la locazione
                 }
             },
             error: function(e){
@@ -384,9 +383,9 @@ $('#salva').on('click', function(){
         console.log("devi fare il login");
     }
 });
-$('#annulla').on('click', function(){
+$('#annulla').on('click', function(){ //tasto annulla nella modalità prendi appunti
     console.log("cliccato annulla");
-    window.location = "../progetto/index.html";
+    window.location = "../progetto/index.html"; //FIXME: correggere la locazione
 });
 $('#mostraLista').on('click', function(){
     console.log("cliccato su mostraLista");
@@ -401,31 +400,38 @@ $('#mostraLista').on('click', function(){
             data: {sender: 'loadDetail', nickname: $nickname, opera: opera.nome},
             success: function(data) {
                 alert("Successo");
-                var obj = JSON.parse(data);
+                var obj = JSON.parse(data); //array dei dettagli che verrà pushato nel sessionStorage
                 console.dir(obj);
                 $('#headerDescription').hide();
                 $('#description').hide();
                 $('#listOfDetails').show().empty();
-                $.each(obj, function( index, value ) {//<input type="button" id="nonMostraLista" value="NonmostraLista"
+                $.each(obj, function( index, value ) {  //value è il dettaglio in formato js object
+
                     $('#listOfDetails').prepend('<li id="detail_' + index + '">' +
                         '<a href="#" class="a_detail" id="a_detail_' + index + '" ></a></li>');
-                    $('#detail_' + index ).append('<span id="descrizione_' + index + '"></span>');
+                    $('#detail_' + index ).append('<span id="descrizione_' + index + '"></span>'); //FIXME: decidere se si vuole visualizzare la descrizione oppure no
                     $('#a_detail_' + index ).html(value.nome);
                     $('#descrizione_' + index ).html(" " + value.descrizione);
+
                 });
+                //sessionStorage salva delle stringhe ed utilizza come metodo di default toString, quindi se vogliamo passargli un array
+                //di oggetti, dobbiamo passargli un JSON
+                sessionStorage.setItem("dettagli", data);
+                //quando si tira fuori dal sessionStorage, bisgona utilizzare JSON.parse()
             },
             error: function(e){
-                console.warn("Failed");
+                console.warn("Fallito il load dei dettagli");
                 console.log(e);
             }
         });
     }else {
         console.log("devi fare il login");
         $('#textForProblem2').html("devi fare il login");
+        // window.location = "../progetto/login.html"; //FIXME: decidere se reindirizzare l'utente
     }
 
 });
-$('#nonMostraLista').on('click', function(){
+$('#nonMostraLista').on('click', function(){ //tasto utile, ma che andrà rimosso
     $('#headerDescription').show();
     $('#description').show();
     $('#listOfDetails').hide().empty();
@@ -436,11 +442,26 @@ $('#listOfDetails').on( 'click', '.a_detail', function (e) {
     //per gli eventi di elementi dinamici serve un wrapper
     e.stopPropagation();
     $noteBtn.html("apri appunto");
+    var id = $(this).attr('id') ; //id <a> che contiene il dettaglio
+    var $id = $('#' + $(this).attr('id'));
+    console.log($id.html());
+    sessionStorage.setItem('dettaglioAperto', $id.html());//salviamo il titolo del dettaglio
+    //TODO: serve una funzione che ripeschi il giusto oggetto nel sessionStorage tramite il titolo del dettaglio
+    //      vedi sessionStorage.getItem('dettaglioAperto')
+    //TODO: evidenziare il dettaglio nell'immagine
 });
 $(document).on('click', function () {
     $noteBtn.html("Prendi appunti");
+    sessionStorage.setItem('dettaglioAperto', '');
+    //TODO: non dare la possibilà all'utente di creare un dettaglio con titolo vuoto nella modalità prendi appunti
 });
-$noteBtn.on('click', function(e){
+$noteBtn.on('click', function(e){ //button "prendi appunti/apri appunto"
     e.stopPropagation();
-    window.location = "../progetto/index.html";
+    if(sessionStorage.getItem('dettaglioAperto') !== ''){
+        //TODO: serve una funzione che ripeschi il giusto oggetto nel sessionStorage tramite il titolo del dettaglio
+        //      vedi sessionStorage.getItem('dettaglioAperto')
+        //TODO: aprire il dettaglio all'utente
+    }else{
+        window.location = "../progetto/index.html"; //FIXME: mandare l'utente nella modalità prendi annotazioni
+    }
 });
