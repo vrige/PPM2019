@@ -98,6 +98,7 @@ var canvas = {
 var $imgWrap = $('#artImage');
 
 $(window).on('load', function () {
+    $('#listOfDetails').hide();
     $img = $(document.createElement("img"))
         .attr({
             'id': 'operaImage',
@@ -144,7 +145,7 @@ $(window).on('load', function () {
     if (opera.img === "") {
         $imgWrap
             .css({'font-size': '12px',
-                'text-align': 'center'
+                    'text-align': 'center'
                 }
             )
             .text('Immagine non disponibile');
@@ -169,13 +170,14 @@ $(window).on('load', function () {
         $imgWrap
             .html(canvas.element)
             .after($(document.createElement("span"))
-                    .attr('id', 'canvasInfo')
-                    .text('Clicca l\'immagine per mostrare/nascondere gli appunti')
+                .attr('id', 'canvasInfo')
+                .text('Clicca l\'immagine per mostrare/nascondere gli appunti')
             );
         setBoxHeight();
 
         showTutorial(currentPage); // wait for the operaWrap to be filled to get the correct position for tutorials
     });
+
 
 });
 
@@ -344,9 +346,13 @@ $('#readDescBtn').on('click', function (e) {
             .attr("data-playing", "true");
     }
 });
+
 $('#salva').on('click', function(){
     console.log("cliccato salva");
-    var $dettaglio = '{x: 8.6, y: 7.7, width: 12.8, height: 24.2, nome: "Toro", descrizione: "Corpo scuro e testa bianc"}';
+    //   var $dettaglio = '{"x": 8.8, "y": 7.7, "width": 12.8, "height": 24.2, "nome": "CAne", "descrizione": "Corpo scuro e testa bianc"}';
+
+    var $dettaglioo = {x: 8.6, y: 7.7, width: 12.8, height: 24.2, nome: "Toro", descrizione: "Corpo scuro e testa bianc"};
+    var $dettaglio = JSON.stringify($dettaglioo);
     var $nickname = sessionStorage.getItem('nickname');
     console.log(opera.nome);
 
@@ -380,7 +386,7 @@ $('#salva').on('click', function(){
 });
 $('#annulla').on('click', function(){
     console.log("cliccato annulla");
-   // window.location = "../index.html";
+    window.location = "../progetto/index.html";
 });
 $('#mostraLista').on('click', function(){
     console.log("cliccato su mostraLista");
@@ -395,14 +401,17 @@ $('#mostraLista').on('click', function(){
             data: {sender: 'loadDetail', nickname: $nickname, opera: opera.nome},
             success: function(data) {
                 alert("Successo");
-                console.dir(data);
                 var obj = JSON.parse(data);
-                $('#listOfDetails').empty();
-                $('#textForProblem2').html("");
-                $.each(obj, function( index, $value ) {
-                    $('#listOfDetails').prepend('<li id="detail_' + index + '"></li>');
-                    $('#detail_' + index ).html($value);
-
+                console.dir(obj);
+                $('#headerDescription').hide();
+                $('#description').hide();
+                $('#listOfDetails').show().empty();
+                $.each(obj, function( index, value ) {//<input type="button" id="nonMostraLista" value="NonmostraLista"
+                    $('#listOfDetails').prepend('<li id="detail_' + index + '">' +
+                        '<a href="#" class="a_detail" id="a_detail_' + index + '" ></a></li>');
+                    $('#detail_' + index ).append('<span id="descrizione_' + index + '"></span>');
+                    $('#a_detail_' + index ).html(value.nome);
+                    $('#descrizione_' + index ).html(" " + value.descrizione);
                 });
             },
             error: function(e){
@@ -415,4 +424,23 @@ $('#mostraLista').on('click', function(){
         $('#textForProblem2').html("devi fare il login");
     }
 
+});
+$('#nonMostraLista').on('click', function(){
+    $('#headerDescription').show();
+    $('#description').show();
+    $('#listOfDetails').hide().empty();
+});
+
+var $noteBtn = $('#noteBtn');
+$('#listOfDetails').on( 'click', '.a_detail', function (e) {
+    //per gli eventi di elementi dinamici serve un wrapper
+    e.stopPropagation();
+    $noteBtn.html("apri appunto");
+});
+$(document).on('click', function () {
+    $noteBtn.html("Prendi appunti");
+});
+$noteBtn.on('click', function(e){
+    e.stopPropagation();
+    window.location = "../progetto/index.html";
 });

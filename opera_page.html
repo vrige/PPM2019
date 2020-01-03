@@ -31,11 +31,11 @@
         <input type="button" id="salva" value="Conferma">
         <input type="button" id="annulla" value="Annulla">
         <input type="button" id="mostraLista" value="mostraLista">
+        <input type="button" id="nonMostraLista" value="NonmostraLista">
         <span id="textForProblem2"></span>
         <span id="noteBtn">Prendi appunti</span>
     </div>
 </header>
-<ul id="listOfDetails"></ul>
 <main id="wrapper">
     <div id="searchBox">
         <input type="text" placeholder="Cerca titolo appunto...">
@@ -46,7 +46,7 @@
             <div id="artImage">
             </div>
             <section id="info">
-                <header>
+                <header id="headerDescription">
                     <div id="title">
                         <h2><span id="name"></span><span id="artist"></span><span id="year"></span></h2>
                         <h3><span id="location"></span></h3>
@@ -58,6 +58,7 @@
                 <main id="description">
                 </main>
             </section>
+            <ul id="listOfDetails">Lista appunti</ul>
         </div>
     </div>
 </main>
