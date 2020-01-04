@@ -347,89 +347,9 @@ $('#readDescBtn').on('click', function (e) {
     }
 });
 
-$('#salva').on('click', function(){
-    console.log("cliccato salva");
-
-    var $dettaglioo = {x: 8.7, y: 7.7, width: 12.8, height: 24.2, nome: "Toroo", descrizione: "Corpo scuro e testa bianc"};
-    var $dettaglio = JSON.stringify($dettaglioo);
-
-    var $nickname = sessionStorage.getItem('nickname');
-
-    if(sessionStorage["nickname"]){
-        console.log("login valido");
-        $.ajax({
-            type: 'POST',
-            url: 'https://ppm2020app.000webhostapp.com/query_opereDB.php',
-            data: {sender: 'saveDetail', nickname: $nickname, opera: opera.nome, dettaglio: $dettaglio},
-            success: function(data) {
-                alert("Successo");
-                console.dir(data);
-                var obj = JSON.parse(data);
-                if(obj.alreadyInDB === "true"){
-                    $('#textForProblem2').html("dettaglio per quell'opera già esistente");
-                    console.log("dettaglio per quell'opera già esistente");
-                }else{
-                    $('#textForProblem2').html("");
-                    console.log("nuovo dettaglio aggiunto");
-                    //  window.location = "../index.html";   //FIXME: correggere la locazione
-                }
-            },
-            error: function(e){
-                console.warn("Failed");
-                console.log(e);
-            }
-        });
-    }else {
-        console.log("devi fare il login");
-    }
-});
 $('#annulla').on('click', function(){ //tasto annulla nella modalità prendi appunti
     console.log("cliccato annulla");
     window.location = "../progetto/index.html"; //FIXME: correggere la locazione
-});
-$('#mostraLista').on('click', function(){
-    console.log("cliccato su mostraLista");
-    var $nickname = sessionStorage.getItem('nickname');
-
-    if(sessionStorage["nickname"]){
-        console.log("login valido ");
-        console.log($nickname);
-        $.ajax({
-            type: 'POST',
-            url: 'https://ppm2020app.000webhostapp.com/query_opereDB.php',
-            data: {sender: 'loadDetail', nickname: $nickname, opera: opera.nome},
-            success: function(data) {
-                alert("Successo");
-                var obj = JSON.parse(data); //array dei dettagli che verrà pushato nel sessionStorage
-                console.dir(obj);
-                $('#headerDescription').hide();
-                $('#description').hide();
-                $('#listOfDetails').show().empty();
-                $.each(obj, function( index, value ) {  //value è il dettaglio in formato js object
-
-                    $('#listOfDetails').prepend('<li id="detail_' + index + '">' +
-                        '<a href="#" class="a_detail" id="a_detail_' + index + '" ></a></li>');
-                    $('#detail_' + index ).append('<span id="descrizione_' + index + '"></span>'); //FIXME: decidere se si vuole visualizzare la descrizione oppure no
-                    $('#a_detail_' + index ).html(value.nome);
-                    $('#descrizione_' + index ).html(" " + value.descrizione);
-
-                });
-                //sessionStorage salva delle stringhe ed utilizza come metodo di default toString, quindi se vogliamo passargli un array
-                //di oggetti, dobbiamo passargli un JSON
-                sessionStorage.setItem("dettagli", data);
-                //quando si tira fuori dal sessionStorage, bisgona utilizzare JSON.parse()
-            },
-            error: function(e){
-                console.warn("Fallito il load dei dettagli");
-                console.log(e);
-            }
-        });
-    }else {
-        console.log("devi fare il login");
-        $('#textForProblem2').html("devi fare il login");
-        // window.location = "../progetto/login.html"; //FIXME: decidere se reindirizzare l'utente
-    }
-
 });
 $('#nonMostraLista').on('click', function(){ //tasto utile, ma che andrà rimosso
     $('#headerDescription').show();
@@ -463,5 +383,197 @@ $noteBtn.on('click', function(e){ //button "prendi appunti/apri appunto"
         //TODO: aprire il dettaglio all'utente
     }else{
         window.location = "../progetto/index.html"; //FIXME: mandare l'utente nella modalità prendi annotazioni
+    }
+});
+
+
+
+//////////////////CHIAMATE AJAX///////////////////////////
+
+//////////////////SALVA_DETTAGLIO/////////////////////////
+$('#salva').on('click', function(){
+    console.log("cliccato salva");
+
+    var $dettaglioo = {x: 8.7, y: 7.7, width: 12.8, height: 24.2, nome: "Toro", descrizione: "Corpo scuro e testa bianc"};
+    var $dettaglio = JSON.stringify($dettaglioo);
+
+    var $nickname = sessionStorage.getItem('nickname');
+
+    if(sessionStorage["nickname"]){
+        console.log("login valido: " + $nickname);
+        $.ajax({
+            type: 'POST',
+            url: 'https://ppm2020app.000webhostapp.com/query_opereDB.php',
+            data: {sender: 'saveDetail', nickname: $nickname, opera: opera.nome, dettaglio: $dettaglio},
+            success: function(data) {
+                console.dir(data);
+                var obj = JSON.parse(data);
+                if(obj.alreadyInDB === "true"){
+                    $('#textForProblem2').html("dettaglio per quell'opera già esistente");
+                    console.log("dettaglio per quell'opera già esistente");
+
+                }else{
+                    $('#textForProblem2').html("dettaglio aggiunto correttamente");
+                    console.log("nuovo dettaglio aggiunto");
+                    $('#mostraLista').trigger('click');
+                    //  window.location = "../index.html";   //FIXME: correggere la locazione
+                }
+            },
+            error: function(e){
+                console.warn("Failed");
+                console.log(e);
+            }
+        });
+    }else {
+        console.log("devi fare il login");
+        $('#textForProblem2').html("devi fare il login");
+    }
+});
+
+
+//////////////////MOSTRA DETTAGLI/////////////////////////
+$('#mostraLista').on('click', function(){
+    console.log("cliccato su mostraLista");
+    var $nickname = sessionStorage.getItem('nickname');
+
+    if(sessionStorage["nickname"]){
+        console.log("login valido: " + $nickname);
+        $.ajax({
+            type: 'POST',
+            url: 'https://ppm2020app.000webhostapp.com/query_opereDB.php',
+            data: {sender: 'loadDetail', nickname: $nickname, opera: opera.nome},
+            success: function(data) {
+                console.dir(data);
+                $('#headerDescription').hide();
+                $('#description').hide();
+                $('#listOfDetails').show().empty();
+                if(data === "0 results"){
+                    console.log("non ci sono dettagli");
+                    $('#textForProblem2').html("non ci sono dettagli presenti");
+                }else{
+                    var obj = JSON.parse(data); //array dei dettagli che verrà pushato nel sessionStorage
+                    console.dir(obj);
+                    $.each(obj, function( index, value ) {  //value è il dettaglio in formato js object
+
+                        $('#listOfDetails').prepend('<li id="detail_' + index + '">' +
+                            '<a href="#" class="a_detail" id="a_detail_' + index + '" ></a></li>');
+                        $('#detail_' + index ).append('<span id="descrizione_' + index + '"></span>'); //FIXME: decidere se si vuole visualizzare la descrizione oppure no
+                        $('#a_detail_' + index ).html(value.nome);
+                        $('#descrizione_' + index ).html(" " + value.descrizione);
+
+                    });
+                    //sessionStorage salva delle stringhe ed utilizza come metodo di default toString, quindi se vogliamo passargli un array
+                    //di oggetti, dobbiamo passargli un JSON
+                    sessionStorage.setItem("dettagli", data);
+                    //quando si tira fuori dal sessionStorage, bisgona utilizzare JSON.parse()
+                }
+            },
+            error: function(e){
+                console.warn("Fallito il load dei dettagli");
+                console.log(e);
+            }
+        });
+    }else {
+        console.log("devi fare il login");
+        $('#textForProblem2').html("devi fare il login");
+        // window.location = "../progetto/login.html"; //FIXME: decidere se reindirizzare l'utente
+    }
+
+});
+
+
+//////////////////MODIFICA DETTAGLIO/////////////////////////
+$('#modificaDettaglio').on('click', function(){
+    console.log("cliccato su modifica");
+
+    var $modificaa = {old_nome: "Toro" , nome: "TOROOo", descrizione: "Corpo scurooooo e testa bianc"};
+    var $modifica = JSON.stringify($modificaa);
+    console.dir($modifica);
+    var $nickname = sessionStorage.getItem('nickname');
+
+    if(sessionStorage["nickname"]){
+        console.log("login valido");
+        $.ajax({
+            type: 'POST',
+            url: 'https://ppm2020app.000webhostapp.com/query_opereDB.php',
+            data: {sender: 'modifyDetail', nickname: $nickname, opera: opera.nome, modifica: $modifica},
+            success: function(data) {
+                console.dir(data);
+                var obj = JSON.parse(data);
+                if(obj.newNameisInDB === "true"){
+                    $('#textForProblem2').html("nuovo nome del dettaglio presente nel DB. Modificare nuovamente il nome");
+                    console.log("nuovo nome del dettaglio presente nel DB. Modificare nuovamente il nome");
+                }
+                else if(obj.oldNameisInDB === "true"){  //il vecchio titolo è presente nel db
+                    console.log("titolo del dettaglio presente nel DB");
+                    if(obj.modifyNome === "true"){
+                        if(obj.modifyDescrizione ==="true"){
+                            console.log("nome e descrizione modfiicati");
+                            $('#textForProblem2').html("nome e descrizione modificati");
+                        }else{
+                            console.log("nome dettaglio modfiicato");
+                            $('#textForProblem2').html("nome dettaglio modfiicato");
+                        }
+                    }else {
+                        if (obj.modifyDescrizione === "true") {
+                            console.log("descrizione dettaglio modificato");
+                            $('#textForProblem2').html("descrizione dettaglio modificato");
+                        } else {
+                            console.log("nome e descrizione modfiicati");
+                            $('#textForProblem2').html("nome e descrizione dettaglio sono rimasti uguali");
+                        }
+                    }
+                    $('#mostraLista').trigger('click');
+                }else{
+                    $('#textForProblem2').html("dettaglio non presente nel DB");
+                    console.log("dettaglio non presente nel DB");
+                }
+            },
+            error: function(e){
+                console.warn("Failed");
+                console.log(e);
+            }
+        });
+    }else {
+        console.log("devi fare il login");
+        $('#textForProblem2').html("devi fare il login");
+    }
+});
+
+
+//////////////////ELIMINA DETTAGLIO/////////////////////////
+$('#eliminaDettaglio').on('click', function(){
+    console.log("cliccato su elimina");
+
+    var $nome = "TOROOo";//nome del dettaglio
+
+    var $nickname = sessionStorage.getItem('nickname');
+
+    if(sessionStorage["nickname"]){
+        console.log("login valido");
+        $.ajax({
+            type: 'POST',
+            url: 'https://ppm2020app.000webhostapp.com/query_opereDB.php',
+            data: {sender: 'deleteDetail', nickname: $nickname, opera: opera.nome, nome: $nome},
+            success: function(data) {
+                console.dir(data);
+                var obj = JSON.parse(data);
+                if(obj.deleteFromDB === "true"){
+                    $('#textForProblem2').html("dettaglio eliminato correttamente");
+                    console.log("dettaglio eliminato correttamente");
+                    $('#mostraLista').trigger('click');
+                }else{
+                    $('#textForProblem2').html("problemi nell'eliminare il dettaglio");
+                    console.log("problemi nell'eliminare il dettaglio");
+                }
+            },
+            error: function(e){
+                console.warn("Failed");
+                console.log(e);
+            }
+        });
+    }else {
+        console.log("devi fare il login");
+        $('#textForProblem2').html("devi fare il login");
     }
 });
